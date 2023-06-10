@@ -4,6 +4,7 @@ import personal.controllers.UserController;
 import personal.model.FileOperationImpl;
 import personal.model.User;
 
+import javax.jws.soap.SOAPBinding;
 import java.util.List;
 import java.util.Scanner;
 
@@ -33,11 +34,23 @@ public class ViewUser {
                     case LIST:
                         readList();
                         break;
+                    case UPDATE:
+                        updateUser();
+                        break;
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    private void updateUser() throws Exception {
+        readList();
+        User user = getUser();
+        User updateUser = getNewUser();
+        updateUser.setId(user.getId());
+        User saveUser = userController.updateUser(updateUser);
+        System.out.println(saveUser);
     }
 
     private void readList() {
@@ -48,16 +61,27 @@ public class ViewUser {
     }
 
     private void readUser() throws Exception {
-        String id = prompt("Идентификатор пользователя: ");
-        User user = userController.readUser(id);
+        User user = getUser();
         System.out.println(user);
     }
 
+    private User getUser() throws Exception {
+        String id = prompt("Идентификатор пользователя: ");
+        User user = userController.readUser(id);
+        return user;
+    }
+
     private void createUser() {
+        User user = getNewUser();
+        userController.saveUser(user);
+    }
+
+    private User getNewUser() {
         String firstName = prompt("Имя: ");
         String lastName = prompt("Фамилия: ");
         String phone = prompt("Номер телефона: ");
-        userController.saveUser(new User(firstName, lastName, phone));
+        User user = new User(firstName, lastName, phone);
+        return user;
     }
 
     private String prompt(String message) {
